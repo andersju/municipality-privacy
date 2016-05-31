@@ -9,6 +9,10 @@ The code wasn't written with public use in mind -- it can be rather
 messy -- but rather to show exactly how the statistics were gathered
 and generated.
 
+The result is available at https://dataskydd.net/kommuner/ and you can
+[download the SQLite database](https://dataskydd.net/kommuner/crawl-data.sqlite.gz) (7.4 MB,
+gzip).
+
 ## How to do it yourself
 Get [OpenWPM](https://github.com/citp/OpenWPM) running.  For this
 analysis we used revision `ba0eb6c`:
