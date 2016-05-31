@@ -1,0 +1,71 @@
+<%
+import SiteGenerator.Helpers
+%>
+
+<section class="index-intro">
+
+  <h1>Hur <strong>privatlivsvänlig</strong> är din kommun?</h1>
+
+  <div class="alpha">
+    <p>Vi har undersökt webbplatserna för Sveriges 290 kommuner och tagit reda på vilka dataskyddande funktioner de använder &mdash; eller <em>inte</em> använder &mdash; för att hjälpa dig utöva makt över ditt privatliv.</p>
+
+    <p>Webbplatserna <a href="/kommuner/metodologi.html#betyg">betygsattes</a> enligt en skala A-E. Klicka på ett kommunnamn för detaljerad information.</p>
+
+    <p><small><em>Tips: använd <a href="https://webbkoll.dataskydd.net/">Dataskydd.net:s Webbkoll</a> för att testa din egen sajt (eller någon annans)!</em></small></p>
+  </div>
+  <div class="beta">
+    <strong>I korthet:</strong>
+    <ul class="no-bullet">
+      <%= for {score, value} <- meta[:scores] do %>
+      <li><%= value %> <span class="score-<%= score %>"><%= String.upcase(score) %></span></li>
+      <% end %>
+      <li>Antal med HTTPS: <%= meta[:https] %></li>
+    </ul>
+  </div>
+
+</section>
+
+<section class="index-table">
+  <table class="datatable">
+    <thead>
+      <tr>
+        <th data-default-sort="true">Kommun</th>
+        <th>Betyg</th>
+        <th>HTTP/HTTPS</th>
+        <th>Referrers</th>
+        <th>Kakor totalt</th>
+        <th>Kakor 1:a</th>
+        <th>Kakor 3:e</th>
+        <th>Tredjeparter</th>
+      </tr>
+    </thead>
+    <tbody>
+    <%= for site <- data do %>
+      <% {cookies_first, cookies_third} = site[:cookies] %>
+      <tr>
+        <td><a href="/kommuner/kommun/<%= site[:base_domain] %>.html"><%= site[:name] %></a></td>
+        <td class="score-<%= site[:score] %>"><%= site[:score] %></td>
+        <%= if site[:scheme] == "https" do %>
+          <td class="success"><i class="icon-lock"></i> <%= String.upcase(site[:scheme]) %></td>
+        <% else %>
+          <td class="alert"><i class="icon-unlock-alt"></i> <%= String.upcase(site[:scheme]) %></td>
+        <% end %>
+        <%= if site[:referrer_policy] in ["never", "no-referrer"] do %>
+          <td class="success">Nej</td>
+        <% else %>
+          <td class="alert">Ja</td>
+        <% end %>
+        <td><%= Enum.count(cookies_first) + Enum.count(cookies_third) %></td>
+        <td><%= Enum.count(cookies_first) %></td>
+        <td><%= Enum.count(cookies_third) %></td>
+        <td><%= site[:unique_base_domains] %></td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+  <p class="full"><small><strong>HTTP/HTTPS:</strong> Vilken av dem som används som standard. <strong>Referrers:</strong> "Ja" = läcker referrers. <strong>Kakor totalt:</strong> Totalt antal kakor, inklusive sessionskakor. <strong>Kakor 1:a:</strong> Antal förstapartskakor. <strong>Kakor 3:e:</strong> Antal tredjepartskakor. <strong>Tredjeparter:</strong> Antal unika tredjepartersdomäner kontaktade.</small></p>
+
+  <p><em>Örkelljunga är inte med i sammanställningen eftersom kommunens webbplats låg nere då undersökningen gjordes.</em></p>
+
+  <p>Undersökningen genomfördes 2016-05-30&ndash;2016-05-31.</p>
+</section>

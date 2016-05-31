@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="<%= description %>">
+    <meta name="author" content="Dataskydd.net">
+    <meta name="referrer" content="no-referrer">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/kommuner/css/style.css">
+  </head>
+  <body>
+    <header class="navigation" role="banner">
+      <div class="navigation-wrapper">
+        <nav role="navigation">
+          <ul class="navigation-menu show" id="js-navigation-menu">
+            <li class="nav-link logo">
+              <a href="/kommuner"> <i class="icon-eye-slash"></i>
+                <span>Webbkoll: Kommunundersökning</span> | <span>dataskydd</span><span class="semibold">.net</span>
+              </a>
+            </li>
+            <li class="nav-link"><a href="/kommuner/om.html">Frågor &amp; svar</a></li>
+            <li class="nav-link"><a href="/kommuner/begrepp.html">Begrepp &amp; tips</a></li>
+            <li class="nav-link"><a href="/kommuner/metodologi.html">Metodologi</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main role="main">
+      <%= EEx.eval_file("templates/#{page}.eex.html", [data: data, meta: meta]) %>
+    </main>
+
+    <div class="footer-outer">
+      <footer>
+        <div class="alpha">
+          <p>
+            Kommunundersökningen är genomförd av
+            <a href="https://dataskydd.net/">
+              <span class="ds-orange">dataskydd</span>
+              <span class="semibold black">.net</span>
+            </a>
+            som del av ett projekt med finansiering från
+            <a href="https://www.internetfonden.se">Internetfonden</a>
+            /
+            <a href="https://www.iis.se">IIS</a>.
+          </p>
+          <a href="https://www.internetfonden.se/">
+            <img src="/kommuner/images/internetfonden.png"></a>
+          <a href="https://www.iis.se/">
+            <img src="/kommuner/images/iis.png"></a>
+        </div>
+        <div class="beta">
+          <p>
+            Kommentarer? Frågor?
+            <a href="mailto:info@dataskydd.net">info@dataskydd.net</a>
+          </p>
+        </div>
+      </footer>
+    </div>
+  <script src="/kommuner/js/app.js"></script>
+  </body>
+</html>

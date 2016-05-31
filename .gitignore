@@ -9,4 +9,5 @@ data
 /deps
 erl_crash.dump
 *.ez
-*.html
+web/kommuner/*.html
+web/kommuner/kommun/*.html

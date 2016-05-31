@@ -148,14 +148,14 @@ delete the entries of the failed sites first, though, as the site
 generator doesn't handle multiple crawls of a website. E.g. if the sites
 with `visit_id` 283 and 290 failed:
 
-DELETE FROM http_response_cookies WHERE header_id IN (SELECT id FROM
-http_responses WHERE visit_id IN (283, 290));
-DELETE FROM http_request_cookies WHERE header_id IN (SELECT id FROM
-http_requests WHERE visit_id IN (283, 290));
+```
+DELETE FROM http_response_cookies WHERE header_id IN (SELECT id FROM http_responses WHERE visit_id IN (283, 290));
+DELETE FROM http_request_cookies WHERE header_id IN (SELECT id FROM http_requests WHERE visit_id IN (283, 290));
 DELETE FROM http_responses WHERE visit_id IN (283, 290);
 DELETE FROM http_requests WHERE visit_id IN (283, 290);
 DELETE FROM profile_cookies WHERE visit_id IN (283, 290);
 DELETE FROM site_visits WHERE visit_id IN (283, 290);
+```
 
 Next we have an Elixir program with two main modules: one for adding
 some data to `crawl-data.sqlite`, and one for generating the website

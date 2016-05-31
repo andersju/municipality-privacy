@@ -1,0 +1,35 @@
+<section class="text">
+  <h2>Metodologi</h2>
+
+  <h3 id="betyg">Betygsskala</h3>
+  <ul>
+    <li>A: HTTPS, inga tredjepartsförfrågningar, inga <em>bestående</em> förstapartskakor, meta referrer med värde <code>no-referrer</code> eller <code>never</code>, HTTP Strict Transport Security, inga osäkra förfrågningar</li>
+    <li>B: HTTPS, inga tredjepartsförfrågningar, inga osäkra förfrågningar</li>
+    <li>C: HTTPS+tredjepartskakor+tredjepartsförfrågningar (inga osäkra) <em>eller</em> HTTP+inga tredjepartsförfrågningar</li>
+    <li>D: HTTPS+tredjepartskakor+tredjepartsförfrågningar, men gör osäkra förfrågningar <em>eller</em> HTTP+inga tredjepartskakor</li>
+    <li>E: HTTP, tredjepartskakor, tredjepartsförfrågningar</li>
+  </ul>
+
+  <p><em>Notera: "Inga tredjepartsförfrågningar" implicerar "inga tredjepartskakor". <em>Bestående</em> kakor är sådana som är kvar efter att webbläsaren stängts.</em></p>
+
+  <p>För att få högsta betyg ska man varken läcka information till tredjeparter (internetleverantörer eller andra webbaktörer) eller samla på sig information i onödan själv. Tillsammans med ett aktivt skydd mot läckage med HSTS får man då <strong>betyget A</strong>.</p>
+
+  <p>Det näst högsta betyget innebär att man inte läcker information till tredjeparter (internetleverantörer eller andra webbaktörer). Om man ändå genomför lite kartläggning för egen del får man <strong>betyget B</strong>.</p>
+
+  <p>Mellanbetyget får man om man antingen skyddar besökarna mot läckage till internetleverantörer, eller skyddar dem mot läckage till andra webbaktörer. Då får man <strong>betyget C</strong>.</p>
+
+  <p>Man får ett sämre betyg om man påbörjat införandet av ett skydd mot informationsläckage till antingen internetleverantörer eller andra webbaktörer men inte rott det i hamn. Det ger <strong>betyget D</strong>.</p>
+
+  <p>Bottenbetyget får man om man varken skyddar besökarna mot informationsläckage till internetleverantörer eller till webbaktörer. Det ger dessutom dålig datasäkerhet på sajten, och <strong>betyget blir E</strong>.</p>
+
+  <h3 id="hur">Hur undersökningen genomfördes</h3>
+  <p>Vi använde <a href="https://github.com/citp/OpenWPM">OpenWPM</a> ("Open Web Privacy Measurement") från Princeton Universitys projekt <a href="https://webtap.princeton.edu/">WebTAP</a>. Verktyget besökte varje kommunwebbplats med Firefox och försökte på varje webbplats besöka upp till fem interna sidor. All infångad data (till exempel alla HTTP-förfrågningar/-svar och kakor) sparades sedan i en databas.</p>
+
+  <p>Firefox var konfigurerat att köra med Do Not Track (DNT) inaktiverat &mdash; vilket är standard &mdash; och utan några extra tillägg.</p>
+
+  <p>Därefter körde vi ett egenskrivet program som berikade databasen med diverse uppgifter (huvudsakligen med sådana som redan fanns i databasen, men nu i lätttillgängligare format) och sedan skapade denna sajt utifrån databasen.</p>
+
+  <p>Kod och beskrivning av tillvägagångssätt finns i undersökningens <a href="https://github.com/andersju/municipality-privacy">GitHub-repo.</a> Du kan också <a href="/kommuner/crawl-data.sqlite.gz">ladda ner SQLite-databasen</a> (7,4 MB, gzip).</p>
+
+  <p>Resultatet för en kommun grundar sig alltså inte på en enda sida, utan allt som sammantaget genererades av besök på <em>ingångssidan och upp till fem interna sidor</em>.</p>
+</section>

@@ -1,0 +1,44 @@
+<section class="text">
+  <h3 id="https">HTTPS och säkra förfrågningar</h3>
+  <p>HTTPS betyder att anslutningen mellan besökaren och webbplatsen är krypterad (med TLS/SSL). Det innebär att de som kan "se" besökarens trafik &mdash; till exempel internetleverantörer och skolan/jobbet/etc. beroende på var besökaren är &mdash; inte kan se exakt vad besökaren gör när den surfar. Varje okrypterad HTTP-förfrågan avslöjar information om en användares vanor, och uppsnappande och spårning av okrypterat surfande har blivit vanligt. HTTPS är viktigt ur både privatlivs- och säkerhetssynvinkel.</p>
+
+  <p>För att göra det behöver webbplatsen ett så kallat <em>certifikat</em>. Oftast har kommuner redan certifikat för sina e-tjänster med inloggning, men inte alltid. Certifikat går att köpa från så kallade certifikatutfärdare och kopplas till domäner (webbplatsadresser), och ibland måste man betala extra för koppla ett certifikat till underdomäner. Numera finns dock gratis alternativ, främst projektet <a href="https://letsencrypt.org">Let's Encrypt</a> (som sponsras av Mozilla, Cisco, Google, Facebook och många fler). Let's Encrypt är inte sämre ur vare sig säkerhets- eller dataskyddssynpunkt, och det finns ingen som helst anledning till att betala för den vanligaste typen av certifikat (s.k. DV-certifikat).</p>
+
+  <h3 id="osakra">Osäkra förfrågningar</h3>
+  <p>En osäker förfrågan är när besökaren hämtar information från kommunen eller från en tredjepart (till exempel ett analysverktyg, kartor, väder eller dylikt) på ett okrypterat sätt, det vill säga genom vanlig osäker HTTP. Då är informationen helt öppen för internetleverantören att läsa, spara och behandla.</p>
+
+  <p>Osäkra förfrågningar kan undvikas genom att se till att certifikatet gäller hela webbplatsen och alla underdomäner. Dessutom ska en webbplats inte länka in material från andra webbplatser som inte är krypterade.</p>
+
+  <h3 id="hsts">HTTP Strict Transport Security (HSTS)</h3>
+  <p>HTTP Strict Transport Security (HSTS) är en så kallad HTTP-header som innebär att kommunens webbplats säger åt besökarens webbläsare att för en viss tid framöver <em>bara</em> ansluta över HTTPS. Även efter att en webbplats aktiverat HTTPS så kan det nämligen hända att besökaren försöker ansluta över vanlig osäker HTTP &mdash; till exempel om besökaren skriver bara <code>kommun.se</code> i adressfältet (utan att ange <code>https://</code>), eller klickar på en gammal länk som av misstag använder en <code>http://</code>-URL, eller råkar vara på ett fientligt nätverk som skriver om HTTPS-länkar till HTTP (för att till exempel sprida malware eller lura besökaren att lämna ut uppgifter).</p>
+
+  <p><a href="https://https.cio.gov/hsts/">Läs mer om HSTS</a> och om hur du konfigurerar det i nginx, Apache och IIS.</p>
+
+  <h3 id="forstapartskakor">Förstapartskakor</h3>
+  <p>Förstapartskakor är kakor som installeras i besökarens dator från den egna kommunen. Normalt behövs kakor för att hålla reda på inloggade besökare, så att inte servern glömmer bort vem som är inloggad och vem som inte är det. Det är dock vanligt att en massa förstapartskakor sätts som inte behövs &mdash; till exempel av analysverktyg som gör tredjepartsförfrågningar, eller för att webbplatsens plattform är byggd så att vissa kakor (oftast så kallade sessionskakor) dyker upp bara i farten.</p>
+
+  <p>För vissa plattformar kan det vara lite lurigt att bli av med okynneskakor som kontrollerar ifall besökaren tillåter JavaScript eller som initierar en session som inte behövs. Man löser det här genom att välja plattformar som inte sätter onödiga kakor, eller genom att anpassa sin plattform så att den inte sätter onödiga kakor.</p>
+
+  <h3 id="tredjepartskakor">Tredjepartskakor</h3>
+  <p>Tredjepartskakor är kakor som installeras i webbplatsbesökarens dator från en organisation eller företag som inte är kommunen, för att organisationen ska kunna återidentifiera besökaren vid ett senare tillfälle. De sätts till exempel av text-till-ljud-leverantörer, analysverktyg, kartverktyg och vädertjänster för att lagra inställningar eller information om besökarens beteende.</p>
+
+  <p>Man kan undvika tredjepartskakor genom att tänka igenom vilka analysverktyg man använder &mdash; till exempel låta bli att använda Google Analytics, och istället använda ett lokalt lagrat analysverktyg som <a href="http://piwik.org">Piwik</a>. Man kan prata med tillhandahållarna av karttjänster och vädertjänster och be dem att inte sätta kakor, eller tydligt informera besökarna om att det sätts kakor av tredjeparter i spårningssyfte.</p>
+
+  <p>För text-till-ljud-funktioner finns olika alternativ. Man kan ställa krav på leverantören att inte sätta kakor på besökare som inte uttryckligen aktiverat text-till-ljud-funktionen, och då bara sätta sådana kakor som är nödvändiga. Text-till-ljud-funktioner finns dessutom i alla moderna operativsystem, så om webbplatsen följer <a href="https://www.w3.org/WAI/intro/wcag">god standard</a> behövs vanligen inga tredjepartstjänster för att kunna läsa upp webbplatsen alls. Dåligt kodade webbplatser kan dock vara svåra eller omöjliga för användarens egna text-till-ljud-funktioner att avläsa.</p>
+
+  <h3 id="tredjepartsforfragningar">Tredjepartsförfrågningar</h3>
+  <p>Tredjepartsförfrågningar görs från kommunens egen webbplats till någon annan webbplats, till exempel Google Analytics, vädertjänster, karttjänster och ofta typsnittstjänster (utseendet på bokstäverna som används på webbplatsen hämtas från en tredjepart!).</p>
+
+  <p>Om tredjepartsförfrågan gäller ett analysverktyg är själva poängen med förfrågan att besökarens beteende ska analyseras, så dataskyddskränkningen är uppenbar. I de andra fallen är dataläckaget förmodligen oavsiktligt: på internet läcker det data om vad du gör och hur du beter dig varje gång du upprättar kontakt med företags webbplatser.</p>
+
+  <p>Genom att lagra typsnitt lokalt undviker man att utsätta sina användare för vissa onödiga tredjepartsförfrågningar. Många populära typsnitt finns i gratis, nedladdningsbara varianter (se till exempel <a href="https://google-webfonts-helper.herokuapp.com/fonts">google-webfonts-helper</a>), och man kan också utforma webbplatsen för att använda just sådana typsnitt som går att lagra lokalt. Man kan också undvika analysverktyg som lagras utanför den egna verksamheten. På Dataskydd.net har vi erfarenhet av <a href="http://piwik.org/">Piwik</a>, ett lokalt lagrat analysverktyg som har många bra dataskyddsinställningar, men det kan finnas andra alternativ. För karttjänster och vädertjänster finns möjlighet att be om att få tillgång till API:er istället för att länka till en tredjepartstjänst. Då kan man hämta data om kartor och väder till sin egen server först, och presentera den till besökarna från sin egen webbplats.</p>
+
+  <h3 id="referrers">Referrers</h3>
+  <p>Exempel: Låt säga att du är inloggad på Facebook. Du besöker en sida med adressen <code>http://www.något-sjukhus.se/någon-medicinsk-åkomma</code>. På den sidan klickar du på en länk till sjukhusets Facebook-sida. Din webbläsare skickar då <code>Referer: http://www.något-sjukhus.se/någon-medicinsk-åkomma</code> till facebook.com, tillsammans med dina Facebook-kakor, vilket gör att Facebook kan associera din identitet med den specifika sidan.</p>
+
+  <p>Problemen förvärras av faktumet att många webbplatser laddar resurser såsom bilder och skript från dussintals olika tredjeparter och skickar referrer-information till dem alla, helt utan de allra flesta besökares vetskap.</p>
+
+  <p>Referrers är ett arv från webbens barndom då webbplatserna var få och drevs av entusiaster. Tanken med referrers var bland annat att det skulle vara lätt att få kontakt med ägare till brutna länkar, och berätta för dem att något är fel. I dag används referrers oftast för att ta reda på hur besökare rör sig mellan olika platser på internet. Till exempel om du börjat surfa på en sökmotor som Google, eller om du klickat dig vidare till en tidning från en kommun. Referrers bidrar alltså till ett läckage av data mellan webbplatsen du kommer ifrån och webbplatsen du går till.</p>
+
+  <p>Lyckligtvis är det här en av de enklaste sakerna att åtgärda tack <a href="https://w3c.github.io/webappsec-referrer-policy/">Referrer Policy</a>, en relativt ny utveckling som dock har <a href="http://caniuse.com/referrer-policy">brett stöd</a> bland webbläsare. Med en enkel textrad kan en webbplatsinnehavare se till att webbplatsen inte läcker data om ens besökare mellan hemsidor. (<code>&lt;meta name="referrer" content="no-referrer"&gt;</code> i webbplatsens <code>&lt;head&gt;</code>-sektion.) </p>
+</section>

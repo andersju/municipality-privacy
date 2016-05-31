@@ -1,0 +1,208 @@
+<%
+import SiteGenerator.Helpers
+
+{cookies_first, cookies_third} = data[:cookies]
+%>
+
+<div id="results-header">
+  <section id="results-title">
+    <div class="title">
+      <h2>
+        <span class="light">Resultat för</span>
+        <span class="semibold"><%= data[:name] %></span>
+      </h2>
+      <p>(<a href="<%= data[:url] %>" rel="nofollow"><%= data[:url] %></a>)</p>
+    </div>
+    <div class="score">
+      <span class="badge-<%= data[:score] %>"><%= data[:score] %></span>
+    </div>
+  </section>
+
+  <section>
+    <div class="stats">
+      <ul>
+        <li>
+          <%= if data[:scheme] == "https" do %>
+            <div class="value">
+              <i class="icon-lock success"></i>
+            </div>
+            <div class="label">
+              <a href="#https">Säker</a>
+            </div>
+          <% else %>
+            <div class="value">
+              <i class="icon-unlock-alt alert"></i>
+            </div>
+            <div class="label">
+              <a href="#https">Osäker</a>
+            </div>
+          <% end %>
+        </li>
+        <li>
+          <%= if data[:meta_referrer]["status"] != "other" do %>
+            <div class="value">
+              <i class="<%= data[:meta_referrer]["icon"] %>"></i>
+            </div>
+            <div class="label">
+              <a href="#referrers"><%= data[:meta_referrer]["text"] %></a>
+            </div>
+          <% end %>
+        </li>
+        <li>
+          <div class="value"><%= Enum.count(cookies_first) + Enum.count(cookies_third) %></div>
+          <div class="label">
+            <a href="#cookies">Kakor</a>
+          </div>
+        </li>
+        <li>
+          <div class="value"><%= Enum.count(data[:requests]) %></div>
+          <div class="label">
+            <a href="#requests">Tredjepartsförfrågningar</a>
+          </div>
+        </li>
+        <li>
+          <div class="value"><%= data[:unique_base_domains] %></div>
+          <div class="label">
+            <a href="#requests"><%= if data[:unique_base_domains] == 1, do: "Tredjepart kontaktad", else: "Tredjeparter kontaktade" %></a>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<div id="results">
+
+  <section class="result">
+    <p>Webbplatsen besöktes <%= data[:time_of_visit] %> och fick <a href="/kommuner/metodologi.html#betyg">betyg <strong><%= String.upcase(data[:score]) %></strong></a>.</p>
+  </section>
+
+  <%= if data[:scheme] == "https" do %>
+    <section class="result success">
+      <h3 id="https">Säker anslutning</h3>
+
+      <p><code><%= data[:host] %></code> använder HTTPS som standard.</p>
+  <% else %>
+    <section class="result alert">
+      <h3 id="https">Osäker anslutning</h3>
+
+      <p><code><%= data[:host] %></code> använder inte HTTPS som standard.</p>
+  <% end %>
+      <p><a href="/kommuner/begrepp.html#https">HTTPS</a> krypterar nästan all information skickad mellan en klient och en webbserver. Rätt konfigurerat garanterar det <strong>konfidentialitet</strong> (anslutning är krypterad vilket döljer URL:er, kakor och annan känslig metadata); <strong>autenticitet</strong> (besökaren pratar med den "riktiga" sajten och inte en "man-in-the-middle"); och <strong>integritet</strong> (informationen som skickas mellan besökaren och webbplatsen har inte manipulerats eller modifierats).</p>
+
+      <p>Varje okrypterad HTTP-förfrågan avslöjar information om en användares vanor, och uppsnappande och spårning av okrypterat surfande har blivit vanligt. HTTPS är viktigt ur både privatlivs- och säkerhetssynvinkel.</p>    
+    </section>
+
+  <%= if data[:scheme] == "https" && data[:request_types][:insecure] > 0 do %>
+    <section class="result alert">
+      <h3 id="https">...men inte helt säker</h3>
+
+      <p>En eller flera resurser laddades genom osäker HTTP.</p>
+    </section>
+  <% end %>
+
+  <%= if data[:scheme] == "https" do %>
+    <%= if data[:hsts] != "0" do %>
+      <section class="result success">
+        <h3 id="https">Strict Transport Security aktiverat</h3>
+
+        <p>HTTP Strict Transport Security (HSTS) är aktiverat med värde <code><%= data[:hsts] %></code>.</p>
+    <% else %>
+      <section class="result warning">
+        <h3 id="https">Strict Transport Security ej aktiverat</h3>
+
+        <p>HTTP Strict Transport Security (HSTS) är inte aktiverat.</p>
+    <% end %>
+      <p><a href="/kommuner/begrepp.html#hsts">HSTS</a> är en enkel standard med brett stöd som skyddar besökare genom att se till att deras webbläsare alltid ansluter till en webbplats över HTTPS.</p>
+      </section>
+  <% end %>
+
+  <section class="result <%= data[:meta_referrer]["status"] %>">
+    <h3 id="referrers"><%= data[:meta_referrer]["text"] %></h3>
+
+    <%= if data["referrer_policy"] do %>
+      <p>Meta referrer satt till <code><%= data[:referrer_policy] %></code>.</p>
+    <% end %>
+
+    <p>När du klickar på en länk så skickar din webbläsare vanligtvis HTTP-headern referer [sic] till destinationssidans webbserver. Headern innehåller adressen till sidan du kom från, vilket alltså avslöjas för webbservern du kommer till. Headern skickas också när externa resurser (såsom bilder, typsnitt, skript och CSS) laddas. Det är en integritetsmardröm som dock <a href="/kommuner/begrepp.html#referrers">lätt kan åtgärdas</a>.</p>
+  </section>
+
+  <section class="result <%= if data[:profile_cookies_first] > 0, do: "warning" %>">
+    <h3>Förstapartskakor</h3>
+    <%= if (cookies_first |> Enum.count) > 0 do %>
+      <p><%= cookies_first |> Enum.count %> förstaparts<%= if (cookies_first |> Enum.count) == 1, do: "kaka", else: "kakor" %> 
+      (<%= data[:profile_cookies_first] %> bestående, <%= data[:session_cookies_first] %> sessions<%= if data[:session_cookies_first] == 1, do: "kaka", else: "kakor" %>).</p>
+      <%= EEx.eval_file("templates/_cookies.eex.html", [cookies: cookies_first]) %>
+    <% else %>
+      <p>Inga förstapartskakor.</p>
+    <% end %>
+    <p><em><a href="/kommuner/begrepp.html#forstapartskakor">Vad är förstapartskakor?</a></em></p>
+  </section>
+
+  <section class="result <%= if data[:profile_cookies_third] > 0, do: "warning" %>">
+    <h3>Tredjepartskakor</h3>
+    <%= if (cookies_third |> Enum.count) > 0 do %>
+      <p><%= cookies_third |> Enum.count %> tredjeparts<%= if (cookies_third |> Enum.count) == 1, do: "kaka", else: "kakor" %> 
+      (<%= data[:profile_cookies_third] %> bestående, <%= data[:session_cookies_third] %> sessions<%= if data[:session_cookies_third] == 1, do: "kaka", else: "kakor" %>).</p>
+      <%= EEx.eval_file("templates/_cookies.eex.html", [cookies: cookies_third]) %>
+    <% else %>
+      <p>Inga tredjepartskakor.</p>
+    <% end %>
+
+    <p><em><a href="/kommuner/begrepp.html#tredjepartskakor">Vad är tredjepartskakor?</a></em></p>
+  </section>
+
+  <section class="result">
+    <h3>Tredjepartsförfrågningar</h3>
+    <p><%= data[:unique_base_domains] %> tredjeparter kontaktade på <%= data[:requests] |> Enum.count %> domäner (<%= data[:request_types][:secure] %> säkra, <%= data[:request_types][:insecure] %> osäkra).</p>
+
+    <p>Med tredjepartsförfrågan menas en förfrågan som inte gjorts till <code><%= data[:base_domain] %></code> eller dess underdomäner. <a href="/kommuner/begrepp.html#tredjepartsforfragningar">Läs mer om tredjepartsförfrågningar.</a></p>
+
+    <%= if (data[:requests] |> Enum.count) > 0 do %>
+      <table>
+        <thead>
+          <tr>
+            <th width="200">Domän</th>
+            <th width="200">Klassificering</th>
+          </tr>
+        </thead>
+        <tbody class="requests-list">
+          <%= for {k, v} <- data[:requests] do %>
+            <tr>
+              <td>
+                <i class="<%= if String.starts_with?(v[:url], "https"), do: "icon-lock", else: "icon-unlock-alt" %>"></i>
+                <%= k %>    
+               </td>
+              <td><%= URI.parse(v[:url]).host |> PublicSuffix.registrable_domain(ignore_private: true) |> SiteGenerator.Trackers.check %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+
+      <p>Vi använder Disconnects <a href="https://github.com/disconnectme/disconnect-tracking-protection">spårningslista</a> (open source) för att klassificera domäner.</p>
+    <% end %>
+  </section>
+
+  <section class="result">
+    <h3 id="headers">HTTP-headers</h3>
+
+    <p>Webbplatsens webbserver kan ange vissa så kallade HTTP-headers för att berätta för besökarens webbläsare hur den ska hantera sidan. Nedan är ett antal headers som kan öka säkerheten.</p>
+
+    <%= EEx.eval_file("templates/_headers.eex.html", [headers: data[:headers]]) %>
+  </section>
+
+  <section class="result">
+    <h3 id="vad">Vad vi kollat</h3>
+
+    <p>Undersökningen är ett resultat av vad som hände när vi med en automatiserad version av Firefox besökte kommunens webbplats och upp till fem interna sidor. Det presenterade resultatet bygger alltså på allt som <em>sammantaget</em> genererades under sessionen. Webbläsaren hade inga tillägg installerade, och Do Not Track (DNT) var inte aktiverat, eftersom det är standardinställningen i de flesta webbläsare. <a href="/kommuner/metodologi.html">Läs mer om hur vi gjorde</a>.</p>
+  </section>
+
+  <section class="result">
+    <h3 id="forbattra">Hur får jag min kommun att bli bättre?</h3>
+
+    <p>Gå till webbplatsen för <a href="<%= data[:url] %>"><%= data[:name] %></a> och mejla eller ring och tipsa dem om den här sidan. Många saker kan relativt enkelt åtgärdas &mdash; många är helt enkelt inte medvetna om vad som kan göras (och varför).</p>
+
+    <p>För att följa upp kan du använda vårt verktyg <a href="https://webbkoll.dataskydd.net/">Webbkoll</a>, som testar valfri sajt "live".</p>
+  </section>
+
+</div>

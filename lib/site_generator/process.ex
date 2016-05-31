@@ -126,7 +126,7 @@ defmodule SiteGenerator.Process do
       content =
         EEx.eval_file("templates/app.eex.html",
                       [page: "site", title: "Resultat för #{site[:base_domain]} | Kommunundersökning",
-                       data: site, meta: []])
+                       data: site, meta: [], description: "Analys av webbplatsen för #{site[:name]} med avseende på dataskydd."])
       File.write!("web/kommuner/kommun/#{site[:base_domain]}.html", content)
     end)
     sites
@@ -134,12 +134,13 @@ defmodule SiteGenerator.Process do
 
   defp render_and_write_pages do
     IO.puts "Writing static pages..."
-    pages = [{"om", "Frågor och svar | Kommunundersökning"},
-             {"metodologi", "Metodologi | Kommunundersökning"},
-             {"begrepp", "Begrepp & tips | Kommunundersökning"}]
+    pages = [{"om", "Frågor och svar | Kommunundersökning", "Vad är dataskydd och varför är det viktigt?"},
+             {"metodologi", "Metodologi | Kommunundersökning", "Hur vi betygsatte kommunsajterna med avseende på dataskydd."},
+             {"begrepp", "Begrepp & tips | Kommunundersökning", "Vad olika dataskyddande funktioner innebär och vad en kommun kan göra åt dem."}]
 
-    Enum.each(pages, fn({template, title}) ->
-      content = EEx.eval_file("templates/app.eex.html", [page: template, title: title, data: [], meta: []])
+    Enum.each(pages, fn({template, title, description}) ->
+      content = EEx.eval_file("templates/app.eex.html", [page: template, title: title, data: [],
+                                                         meta: [], description: description])
       File.write!("web/kommuner/#{template}.html", content)
     end)
   end
@@ -165,7 +166,8 @@ defmodule SiteGenerator.Process do
     stats = %{scores: scores, https: num_https}
     content =
       EEx.eval_file("templates/app.eex.html",
-                    [page: "index", title: "Kommunundersökning | dataskydd.net", data: sites, meta: stats])
+                    [page: "index", title: "Kommunundersökning | dataskydd.net", data: sites, meta: stats,
+                     description: "Hur privatlivsvänlig är din kommuns webbplats? Vi har kartlagt Sveriges 290 kommuner."])
     File.write!("web/kommuner/index.html", content)
   end
 end

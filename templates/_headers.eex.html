@@ -1,0 +1,30 @@
+<% import SiteGenerator.Helpers %>
+
+<div class="header-item heading">
+  <div class="alpha">Header</div>
+  <div class="beta">Satt?</div>
+</div>
+
+<%= for {header, description} <- headers_to_check do %>
+  <div class="header-item">
+    <div class="alpha">
+      <%= header %>
+    </div>
+
+    <div class="beta">
+      <%= if headers[String.downcase(header)] do %>
+        <%= if header == "Strict-Transport-Security" and headers[String.downcase(header)] =~ ~r/max-age=0/i do %>
+          <span><i class="icon-times"></i> NEJ, header satt till <code><%= headers[String.downcase(header)] %></code> vilket inaktiverar HSTS.</span>
+        <% else %>
+          <span><i class="icon-check"></i> JA, <code><%= headers[String.downcase(header)] %></code>.</span>
+          <%= if header == "Content-Security-Policy" and headers[String.downcase(header)] =~ ~r/unsafe/i do %>
+            <p>Osäkra attribut används dock.</p>
+          <% end %>
+        <% end %>
+      <% else %>
+        <span><i class="icon-times"></i> NEJ</span>
+      <% end %>
+      <p><%= description %></p>
+    </div>
+  </div>
+<% end %>

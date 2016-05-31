@@ -1,0 +1,24 @@
+<% import SiteGenerator.Helpers %>
+
+<table class="cookies">
+  <thead>
+    <tr>
+      <th width="200">Domän</th>
+      <th width="200">Namn</th>
+      <th width="150">Värde</th>
+      <th width="150">Åtkomstdatum</th>
+      <th width="150">Utgångsdatum</th>
+    </tr>
+  </thead>
+  <tbody>
+    <%= for cookie <- cookies do %>
+      <tr>
+        <td><%= cookie[:baseDomain] %></td>
+        <td><%= cookie[:name] %></td>
+        <td><%= truncate(cookie[:value], 20) %></td>
+        <td><%= if cookie[:expiry] == nil, do: format_datetime(cookie[:accessed]), else: format_timestamp(cookie[:accessed]/1000000) %></td>
+        <td><%= if cookie[:expiry] == nil, do: "session", else: format_timestamp(cookie[:expiry]) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
