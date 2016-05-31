@@ -37,7 +37,7 @@ Clone this repository. `cd` into it. Copy two of its files to where you
 installed OpenWPM (let say it's `~/openwpm`):
 
 ```
-cp municipalities.txt openwpm_municipalities.py ~/openwpm
+cp data/municipalities.txt openwpm_municipalities.py ~/openwpm
 ```
 
 Then:
