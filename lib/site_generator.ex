@@ -1,0 +1,2 @@
+defmodule SiteGenerator do
+end

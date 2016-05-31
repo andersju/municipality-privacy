@@ -1,0 +1,12 @@
+*.swp
+*.sqlite
+*.sqlite.gz
+municipalities_final_urls.txt
+data
+.sass-cache
+/_build
+/cover
+/deps
+erl_crash.dump
+*.ez
+*.html
