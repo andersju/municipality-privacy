@@ -1,6 +1,7 @@
 $(document).ready( function () {
-    $('.datatable').DataTable({
+    $('#kommuner-datatable').DataTable({
       fixedHeader: true,
+      responsive: true,
       pageLength: 25,
       language: {
               processing:     "Laddar...",

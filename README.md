@@ -13,6 +13,8 @@ The result is available at https://dataskydd.net/kommuner/ and you can
 [download the SQLite database](https://dataskydd.net/kommuner/crawl-data.sqlite.gz) (7.4 MB,
 gzip).
 
+We received funding from [Internetfonden](https://www.internetfonden.se/) / [IIS](https://www.iis.se) (The Internet Foundation in Sweden).
+
 ## How to do it yourself
 Get [OpenWPM](https://github.com/citp/OpenWPM) running.  For this
 analysis we used revision `ba0eb6c`:

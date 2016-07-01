@@ -32,7 +32,7 @@ defmodule SiteGenerator.Trackers do
       {:ok, value} ->
         value
       :error ->
-        if (to_string(host) =~ ~r/^www\./) == true do
+        if (to_string(host) =~ ~r/^www\./) do
           Regex.replace(~r/^www\./, host, "") |> check
         else
           nil

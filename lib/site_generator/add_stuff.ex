@@ -33,6 +33,7 @@ defmodule SiteGenerator.AddStuff do
        end)
   end
 
+  # TODO: Let OpenWPM do this instead.
   defp add_domain_meta(db) do
     IO.puts "Setting base_domain and scheme in all rows in http_requests"
     db
@@ -45,6 +46,7 @@ defmodule SiteGenerator.AddStuff do
        end)
   end
 
+  # TODO: Let OpenWPM do this instead.
   defp add_cookie_meta(db) do
     IO.puts "Setting baseDomain in all rows in http_response_cookies"
     db
@@ -145,7 +147,7 @@ defmodule SiteGenerator.AddStuff do
     |> exec!
   end
 
-  # Returns tuple with number of first-party cookies and number of 
+  # Returns tuple with number of first-party cookies and number of
   # third-party cookies.
   defp get_cookie_count(db, visit_id, base_domain) do
     db

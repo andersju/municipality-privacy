@@ -14,7 +14,7 @@
     <%= for cookie <- cookies do %>
       <tr>
         <td><%= cookie[:baseDomain] %></td>
-        <td><%= cookie[:name] %></td>
+        <td><%= truncate(cookie[:name], 20) %></td>
         <td><%= truncate(cookie[:value], 20) %></td>
         <td><%= if cookie[:expiry] == nil, do: format_datetime(cookie[:accessed]), else: format_timestamp(cookie[:accessed]/1000000) %></td>
         <td><%= if cookie[:expiry] == nil, do: "session", else: format_timestamp(cookie[:expiry]) %></td>
