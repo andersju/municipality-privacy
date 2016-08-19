@@ -125,7 +125,7 @@ defmodule SiteGenerator.Process do
     Enum.each(sites, fn(site) ->
       content =
         EEx.eval_file("templates/app.eex.html",
-                      [page: "site", title: "Resultat för #{site[:base_domain]} | Kommunundersökning",
+                      [page: "site", title: "Resultat för #{site[:base_domain]} | Kommunundersökning", path_prefix: "../",
                        data: site, meta: [], description: "Analys av webbplatsen för #{site[:name]} med avseende på dataskydd."])
       File.write!("web/kommuner/kommun/#{site[:base_domain]}.html", content)
     end)
@@ -139,7 +139,7 @@ defmodule SiteGenerator.Process do
              {"begrepp", "Begrepp & tips | Kommunundersökning", "Vad olika dataskyddande funktioner innebär och vad en kommun kan göra åt dem."}]
 
     Enum.each(pages, fn({template, title, description}) ->
-      content = EEx.eval_file("templates/app.eex.html", [page: template, title: title, data: [],
+      content = EEx.eval_file("templates/app.eex.html", [page: template, title: title, path_prefix: "", data: [],
                                                          meta: [], description: description])
       File.write!("web/kommuner/#{template}.html", content)
     end)
@@ -166,7 +166,7 @@ defmodule SiteGenerator.Process do
     stats = %{scores: scores, https: num_https}
     content =
       EEx.eval_file("templates/app.eex.html",
-                    [page: "index", title: "Kommunundersökning | dataskydd.net", data: sites, meta: stats,
+                    [page: "index", title: "Kommunundersökning | dataskydd.net", path_prefix: "", data: sites, meta: stats,
                      description: "Hur privatlivsvänlig är din kommuns webbplats? Vi har kartlagt Sveriges 290 kommuner."])
     File.write!("web/kommuner/index.html", content)
   end

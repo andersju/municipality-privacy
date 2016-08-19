@@ -9,7 +9,7 @@ import SiteGenerator.Helpers
   <div class="alpha">
     <p>Vi har undersökt webbplatserna för Sveriges 290 kommuner och tagit reda på vilka dataskyddande funktioner de använder &mdash; eller <em>inte</em> använder &mdash; för att hjälpa dig utöva makt över ditt privatliv.</p>
 
-    <p>Webbplatserna <a href="/kommuner/metodologi.html#betyg">betygsattes</a> enligt en skala A-E. Klicka på ett kommunnamn för detaljerad information.</p>
+    <p>Webbplatserna <a href="metodologi.html#betyg">betygsattes</a> enligt en skala A-E. Klicka på ett kommunnamn för detaljerad information.</p>
 
     <p><small><em>Tips: använd <a href="https://webbkoll.dataskydd.net/">Dataskydd.net:s Webbkoll</a> för att testa din egen sajt (eller någon annans)!</em></small></p>
   </div>
@@ -43,7 +43,7 @@ import SiteGenerator.Helpers
     <%= for site <- data do %>
       <% {cookies_first, cookies_third} = site[:cookies] %>
       <tr>
-        <td><a href="/kommuner/kommun/<%= site[:base_domain] %>.html"><%= site[:name] %></a></td>
+        <td><a href="kommun/<%= site[:base_domain] %>.html"><%= site[:name] %></a></td>
         <td class="score-<%= site[:score] %>"><%= site[:score] %></td>
         <%= if site[:scheme] == "https" do %>
           <td class="success"><i class="icon-lock"></i> <%= String.upcase(site[:scheme]) %></td>

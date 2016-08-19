@@ -9,7 +9,7 @@
     <meta name="referrer" content="no-referrer">
     <meta property="og:image" content="https://dataskydd.net/sites/default/files/dataskydd_eye2.png" />
     <title><%= title %></title>
-    <link rel="stylesheet" href="/kommuner/css/style.css">
+    <link rel="stylesheet" href="<%= path_prefix %>css/style.css">
   </head>
   <body>
     <header class="navigation" role="banner">
@@ -17,13 +17,13 @@
         <nav role="navigation">
           <ul class="navigation-menu show" id="js-navigation-menu">
             <li class="nav-link logo">
-              <a href="/kommuner"> <i class="icon-eye-slash"></i>
+              <a href="<%= path_prefix %>index.html"> <i class="icon-eye-slash"></i>
                 <span>Webbkoll: Kommunundersökning</span> | <span>dataskydd</span><span class="semibold">.net</span>
               </a>
             </li>
-            <li class="nav-link"><a href="/kommuner/om.html">Frågor &amp; svar</a></li>
-            <li class="nav-link"><a href="/kommuner/begrepp.html">Begrepp &amp; tips</a></li>
-            <li class="nav-link"><a href="/kommuner/metodologi.html">Metodologi</a></li>
+            <li class="nav-link"><a href="<%= path_prefix %>om.html">Frågor &amp; svar</a></li>
+            <li class="nav-link"><a href="<%= path_prefix %>begrepp.html">Begrepp &amp; tips</a></li>
+            <li class="nav-link"><a href="<%= path_prefix %>metodologi.html">Metodologi</a></li>
           </ul>
         </nav>
       </div>
@@ -48,9 +48,9 @@
             <a href="https://www.iis.se">IIS</a>.
           </p>
           <a href="https://www.internetfonden.se/">
-            <img src="/kommuner/images/internetfonden.png"></a>
+            <img src="<%= path_prefix %>images/internetfonden.png"></a>
           <a href="https://www.iis.se/">
-            <img src="/kommuner/images/iis.png"></a>
+            <img src="<%= path_prefix %>images/iis.png"></a>
         </div>
         <div class="beta">
           <p>
@@ -60,6 +60,6 @@
         </div>
       </footer>
     </div>
-  <script src="/kommuner/js/app.js"></script>
+  <script src="<%= path_prefix %>js/app.js"></script>
   </body>
 </html>
