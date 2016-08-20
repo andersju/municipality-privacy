@@ -1,16 +1,29 @@
 defmodule SiteGenerator.Helpers do
   def format_timestamp(time) do
+    # Sites occasionally set cookies with insane expiration times (> 9999-12-31 23:59:59),
+    # which DateTime balks at. In those cases, we forcibly set the time to 9999-12-31 23:59:59.
     time
-    |> Timex.DateTime.from_seconds
-    |> Timex.format!("%Y-%m-%d %H:%M:%S", :strftime)
+    |> case do
+         timestamp when timestamp > 253402300799 -> 253402300799
+         timestamp -> timestamp
+       end
+    |> round
+    |> DateTime.from_unix!
+    |> DateTime.to_naive
+    |> NaiveDateTime.to_string
   end
 
-  def format_datetime(datetime) do
-    {date, time} = datetime
-
-    {date, (time |> Tuple.delete_at(3))}
-    |> Timex.DateTime.from
-    |> Timex.format!("%Y-%m-%d %H:%M:%S", :strftime)
+  def format_datetime({{year, month, day}, {hour, minute, second, _microsecond}}) do
+    format_datetime({{year, month, day}, {hour, minute, second}})
+  end
+  def format_datetime({{year, month, day}, {hour, minute, second}}) do
+    year =
+      case year do
+        year when year > 9999 -> 9999
+        year -> year
+      end
+    {:ok, date} = NaiveDateTime.new(year, month, day, hour, minute, second)
+    NaiveDateTime.to_string(date)
   end
 
   def get_base_domain(url) do

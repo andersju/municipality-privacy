@@ -4,7 +4,7 @@ defmodule SiteGenerator.Mixfile do
   def project do
     [app: :site_generator,
      version: "0.0.1",
-     elixir: "~> 1.2",
+     elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps]
@@ -14,7 +14,7 @@ defmodule SiteGenerator.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :httpoison, :timex]]
+    [applications: [:logger, :httpoison]]
   end
 
   # Dependencies can be Hex packages:
@@ -29,9 +29,8 @@ defmodule SiteGenerator.Mixfile do
   defp deps do
     [{:sqlitex, "~> 1.0.0"},
      {:poison, "~> 2.0"},
-     {:public_suffix, "~> 0.2.1"},
-     {:timex, "~> 2.1.4"},
-     {:httpoison, "~> 0.8.3"},
-     {:floki, "~> 0.8.1"}]
+     {:public_suffix, "~> 0.4"},
+     {:httpoison, "~> 0.9"},
+     {:floki, "~> 0.10"}]
   end
 end
