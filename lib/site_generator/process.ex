@@ -136,7 +136,8 @@ defmodule SiteGenerator.Process do
     IO.puts "Writing static pages..."
     pages = [{"om", "Frågor och svar | Kommunundersökning", "Vad är dataskydd och varför är det viktigt?"},
              {"metodologi", "Metodologi | Kommunundersökning", "Hur vi betygsatte kommunsajterna med avseende på dataskydd."},
-             {"begrepp", "Begrepp & tips | Kommunundersökning", "Vad olika dataskyddande funktioner innebär och vad en kommun kan göra åt dem."}]
+             {"begrepp", "Begrepp & tips | Kommunundersökning", "Vad olika dataskyddande funktioner innebär och vad en kommun kan göra åt dem."},
+             {"karta", "Karta | Kommunundersökning", "En karta över hur dataskyddande Sveriges kommunsajter är."}]
 
     Enum.each(pages, fn({template, title, description}) ->
       content = EEx.eval_file("templates/app.eex.html", [page: template, title: title, path_prefix: "", data: [],

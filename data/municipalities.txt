@@ -24,7 +24,7 @@ http://www.bromolla.se/|Bromölla
 http://www.bracke.se/|Bräcke
 http://www.burlov.se/|Burlöv
 http://www.bastad.se/|Båstad
-http://www.dalsed.se/|Dalsed
+http://www.dalsed.se/|Dals-Ed
 http://www.danderyd.se/|Danderyd
 http://www.degerfors.se/|Degerfors
 http://www.dorotea.se/|Dorotea
@@ -76,7 +76,7 @@ http://www.hudiksvall.se/|Hudiksvall
 http://www.hultsfred.se/|Hultsfred
 http://www.hylte.se/|Hylte
 http://www.habo.se/|Håbo
-http://www.hellefors.se/|Hellefors
+http://www.hellefors.se/|Hällefors
 http://www.herjedalen.se/|Härjedalen
 http://www.harnosand.se/|Härnösand
 http://www.harryda.se/|Härryda
@@ -265,7 +265,7 @@ http://www.vasteras.se/|Västerås
 http://www.vaxjo.se/|Växjö
 http://www.ydre.se/|Ydre
 http://www.ystad.se/|Ystad
-http://www.amal.se/|Åmal
+http://www.amal.se/|Åmål
 http://www.ange.se/|Ånge
 http://www.are.se/|Åre
 http://www.arjang.se/|Årjäng

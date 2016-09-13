@@ -1,0 +1,22 @@
+#tooltip {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  height: auto;
+  padding: 10px;
+  pointer-events: none;
+  position: absolute;
+  width: 200px;
+}
+
+#tooltip.hidden {
+  display: none;
+}
+
+#tooltip p {
+  margin: 0;
+}
+
+path:hover {
+  fill: orange;
+}

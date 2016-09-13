@@ -210,6 +210,29 @@ Or run within interactive elixir by prepending `iex -S`, e.g.,
 iex -S mix run -e "SiteGenerator.AddStuff.start()"
 ```
 
+## Generating GeoJSON for the map
+[D3.js](https://d3js.org/) is used for a simple visualization of the municipalities of Sweden, color-coded according to score.
+
+To generate the GeoJSON file:
+
+First, install [QGIS](http://www.qgis.org/) (free and open source!).
+
+Download a [shapefile with Sweden's municipalities](http://www.arcgis.com/home/item.html?id=41f5d23fef8f410590f2d934c7dba81a). Unzip it somewhere.
+
+With [sqlitebrowser](http://sqlitebrowser.org/), open `data/crawl-data.sqlite`, execute `SELECT municipality_name, score, site_url FROM site_visits;`, and export to CSV.
+
+In QGIS:
+
+*Layer -> Add Layer -> Add Vector Layer*. Choose the `.shp` file from the package downloaded earlier. Note that the encoding for that particular file should be set to ISO-8859-1.
+
+*Layer -> Add Layer -> Add Delimited Text Layer*. Choose the csv file we just generated. Select "No geometry (attribute only table". Leave encoding set to UTF-8.
+
+In the Layers Panel, right-click "Kommungränser SCB 07" and select Properties, then Joins. Click the plus icon to add a join: Join layer `kommuner_betyg`, join field `municipality_name`, target field `KNNAMN`.
+
+Finally: *Layer -> Save as*. Choose format GeoJSON, encoding UTF-8, CRS "Project CRS (EPSG:4326 - WGS 84)".
+
+(Thanks to [this tutorial (in Swedish)](https://geosupportsystem.wordpress.com/2013/12/10/visualisera-mera/) for being very helpful.)
+
 ## Credits (things distributed here)
   * [Bourbon](https://github.com/thoughtbot/bourbon), [Neat](https://github.com/thoughtbot/neat), [Bitters](https://github.com/thoughtbot/bitters), [Refills](https://github.com/thoughtbot/refills) (MIT license) by thoughtbot
   * [DataTables](https://datatables.net/) (MIT license) by SpryMedia Ltd
