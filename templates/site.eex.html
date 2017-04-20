@@ -127,11 +127,11 @@ import SiteGenerator.Helpers
     <p>När du klickar på en länk så skickar din webbläsare vanligtvis HTTP-headern referer [sic] till destinationssidans webbserver. Headern innehåller adressen till sidan du kom från, vilket alltså avslöjas för webbservern du kommer till. Headern skickas också när externa resurser (såsom bilder, typsnitt, skript och CSS) laddas. Det är en integritetsmardröm som dock <a href="../begrepp.html#referrers">lätt kan åtgärdas</a>.</p>
   </section>
 
-  <section class="result <%= if data[:profile_cookies_first] > 0, do: "warning" %>">
+  <section class="result <%= if data[:persistent_cookies_first] > 0, do: "warning" %>">
     <h3>Förstapartskakor</h3>
     <%= if (cookies_first |> Enum.count) > 0 do %>
-      <p><%= cookies_first |> Enum.count %> förstaparts<%= if (cookies_first |> Enum.count) == 1, do: "kaka", else: "kakor" %> 
-      (<%= data[:profile_cookies_first] %> bestående, <%= data[:session_cookies_first] %> sessions<%= if data[:session_cookies_first] == 1, do: "kaka", else: "kakor" %>).</p>
+      <p><%= cookies_first |> Enum.count %> förstaparts<%= if (cookies_first |> Enum.count) == 1, do: "kaka", else: "kakor" %>
+      (<%= data[:persistent_cookies_first] %> bestående, <%= data[:session_cookies_first] %> sessions<%= if data[:session_cookies_first] == 1, do: "kaka", else: "kakor" %>).</p>
       <%= EEx.eval_file("templates/_cookies.eex.html", [cookies: cookies_first]) %>
     <% else %>
       <p>Inga förstapartskakor.</p>
@@ -139,11 +139,11 @@ import SiteGenerator.Helpers
     <p><em><a href="begrepp.html#forstapartskakor">Vad är förstapartskakor?</a></em></p>
   </section>
 
-  <section class="result <%= if data[:profile_cookies_third] > 0, do: "warning" %>">
+  <section class="result <%= if data[:persistent_cookies_third] > 0, do: "warning" %>">
     <h3>Tredjepartskakor</h3>
     <%= if (cookies_third |> Enum.count) > 0 do %>
       <p><%= cookies_third |> Enum.count %> tredjeparts<%= if (cookies_third |> Enum.count) == 1, do: "kaka", else: "kakor" %> 
-      (<%= data[:profile_cookies_third] %> bestående, <%= data[:session_cookies_third] %> sessions<%= if data[:session_cookies_third] == 1, do: "kaka", else: "kakor" %>).</p>
+      (<%= data[:persistent_cookies_third] %> bestående, <%= data[:session_cookies_third] %> sessions<%= if data[:session_cookies_third] == 1, do: "kaka", else: "kakor" %>).</p>
       <%= EEx.eval_file("templates/_cookies.eex.html", [cookies: cookies_third]) %>
     <% else %>
       <p>Inga tredjepartskakor.</p>

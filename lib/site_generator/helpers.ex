@@ -59,7 +59,7 @@ defmodule SiteGenerator.Helpers do
     }
   end
 
-  def check_meta_referrer(referrer) do
+  def check_referrer_policy(referrer) do
     cond do
       referrer in ["never", "no-referrer"] ->
         %{"status" => "success",
@@ -69,7 +69,7 @@ defmodule SiteGenerator.Helpers do
         %{"status" => "warning",
           "icon"   => "icon-raindrops2 warning",
            "text"  => "Referrers läcks delvis"}
-      referrer in ["no-referrer-when-down-grade", "default", "unsafe-url", "always", ""] ->
+      referrer in ["no-referrer-when-down-grade", "default", "unsafe-url", "always", "", nil] ->
         %{"status" => "alert",
           "icon" => "icon-raindrops2 alert",
            "text" => "Referrers läcks"}

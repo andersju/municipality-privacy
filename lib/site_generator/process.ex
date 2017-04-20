@@ -25,49 +25,54 @@ defmodule SiteGenerator.Process do
     with base_domain = get_base_domain(site[:site_url]),
          requests    = get_third_party_requests(site[:visit_id], base_domain, db)
     do
-      %{name:                  site[:municipality_name],
-        url:                   site[:site_url],
-        host:                  URI.parse(site[:site_url]).host,
-        base_domain:           base_domain,
-        score:                 site[:score],
-        scheme:                site[:scheme],
-        headers:               get_headers(site[:visit_id], db),
-        hsts:                  site[:hsts],
-        referrer_policy:       site[:referrer_policy],
-        meta_referrer:         check_meta_referrer(site[:referrer_policy]),
-        cookies:               get_cookies(site[:visit_id], base_domain, db),
-        profile_cookies_first: site[:first_party_profile_cookies],
-        profile_cookies_third: site[:third_party_profile_cookies],
-        session_cookies_first: site[:first_party_session_cookies],
-        session_cookies_third: site[:third_party_session_cookies],
-        requests:              requests,
-        request_types:         get_request_types(requests),
-        unique_base_domains:   get_unique_base_domains(requests),
-        time_of_visit:         get_time_of_visit(site[:visit_id], db)}
+      %{name:                     site[:municipality_name],
+        url:                      site[:site_url],
+        host:                     URI.parse(site[:site_url]).host,
+        base_domain:              base_domain,
+        score:                    site[:score],
+        scheme:                   site[:scheme],
+        headers:                  get_headers(site[:visit_id], db),
+        hsts:                     site[:hsts],
+        referrer_policy:          site[:referrer_policy],
+        meta_referrer:            check_referrer_policy(site[:referrer_policy]),
+        cookies:                  get_cookies(site[:visit_id], base_domain, db),
+        persistent_cookies_first: site[:first_party_persistent_cookies],
+        persistent_cookies_third: site[:third_party_persistent_cookies],
+        session_cookies_first:    site[:first_party_session_cookies],
+        session_cookies_third:    site[:third_party_session_cookies],
+        requests:                 requests,
+        request_types:            get_request_types(requests),
+        unique_base_domains:      get_unique_base_domains(requests),
+        time_of_visit:            get_time_of_visit(site[:visit_id], db)}
     end
   end
 
   defp get_cookies(visit_id, base_domain, db) do
-    {profile_first, profile_third} =
+    {persistent_first, persistent_third} =
       db
-      |> prepare!("SELECT * FROM profile_cookies WHERE visit_id = ?")
+      |> prepare!("SELECT *
+                   FROM javascript_cookies
+                   WHERE visit_id = ?
+                   AND is_session = 0
+                   AND change = 'added'
+                   GROUP BY host, name")
       |> bind_values!([visit_id])
       |> fetch_all!
-      |> Enum.partition(&(&1[:baseDomain] == base_domain))
+      |> Enum.partition(&(&1[:base_domain] == base_domain))
 
     {session_first, session_third} =
       db
       |> prepare!("SELECT *
-                   FROM http_response_cookies
-                   WHERE header_id IN
-                     (SELECT id FROM http_responses WHERE visit_id = ?)
-                   AND expires IS null
-                   GROUP BY domain, name")
+                   FROM javascript_cookies
+                   WHERE visit_id = ?
+                   AND is_session = 1
+                   AND change = 'added'
+                   GROUP BY host, name")
       |> bind_values!([visit_id])
       |> fetch_all!
-      |> Enum.partition(&(&1[:baseDomain] == base_domain))
+      |> Enum.partition(&(&1[:base_domain] == base_domain))
 
-      {profile_first ++ session_first, profile_third ++ session_third}
+      {persistent_first ++ session_first, persistent_third ++ session_third}
   end
 
   defp get_time_of_visit(visit_id, db) do

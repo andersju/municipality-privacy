@@ -5,7 +5,7 @@
   <div class="beta">Satt?</div>
 </div>
 
-<%= for {header, description} <- headers_to_check do %>
+<%= for {header, description} <- headers_to_check() do %>
   <div class="header-item">
     <div class="alpha">
       <%= header %>

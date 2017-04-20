@@ -6,9 +6,9 @@ defmodule SiteGenerator.AddStuff do
     {:ok, db} = Sqlitex.open("data/crawl-data.sqlite")
 
     add_columns(db, "http_requests", ~w(base_domain scheme), "TEXT")
-    add_columns(db, "http_response_cookies", ~w(baseDomain), "TEXT")
+    add_columns(db, "javascript_cookies", ~w(base_domain), "TEXT")
     add_columns(db, "site_visits",   ~w(municipality_name scheme hsts referrer_policy score), "TEXT")
-    add_columns(db, "site_visits",   ~w(first_party_profile_cookies third_party_profile_cookies
+    add_columns(db, "site_visits",   ~w(first_party_persistent_cookies third_party_persistent_cookies
                                         first_party_session_cookies third_party_session_cookies
                                         third_party_requests insecure_requests), "INTEGER")
     add_domain_meta(db)
@@ -48,13 +48,12 @@ defmodule SiteGenerator.AddStuff do
 
   # TODO: Let OpenWPM do this instead.
   defp add_cookie_meta(db) do
-    IO.puts "Setting baseDomain in all rows in http_response_cookies"
+    IO.puts "Setting base_domain in all rows in javascript_cookies"
     db
-    |> query!("SELECT id, domain FROM http_response_cookies")
+    |> query!("SELECT id, raw_host FROM javascript_cookies")
     |> Enum.each(fn(x) ->
-         base_domain = x[:domain] |> String.replace_prefix(".", "") |> PublicSuffix.registrable_domain
-         prepare!(db, "UPDATE http_response_cookies SET baseDomain = ? WHERE id = ?")
-         |> bind_values!([base_domain, x[:id]])
+         prepare!(db, "UPDATE javascript_cookies SET base_domain = ? WHERE id = ?")
+         |> bind_values!([PublicSuffix.registrable_domain(x[:raw_host]), x[:id]])
          |> exec!
        end)
   end
@@ -72,7 +71,7 @@ defmodule SiteGenerator.AddStuff do
   end
 
   defp update_sites(db) do
-    municipalities = get_municipalities
+    municipalities = get_municipalities()
     db
     |> query!("SELECT visit_id, site_url FROM site_visits")
     |> Enum.each(&(update_site(db, municipalities, &1)))
@@ -85,10 +84,10 @@ defmodule SiteGenerator.AddStuff do
     scheme                                = URI.parse(site_url).scheme
     third_party_requests                  = get_third_party_requests(db, visit_id, base_domain)
     {insecure_requests, _secure_requests} = get_request_types(db, visit_id)
-    referrer_policy                       = get_referrer_policy(site_url)
     headers                               = get_headers(db, visit_id)
+    referrer_policy                       = get_referrer_policy(site_url, headers)
     hsts_header                           = Map.get(headers, "strict-transport-security", 0)
-    {profile_cookies_first, profile_cookies_third} = get_cookie_count(db, visit_id, base_domain)
+    {persistent_cookies_first, persistent_cookies_third} = get_persistent_cookie_count(db, visit_id, base_domain)
     {session_cookies_first, session_cookies_third} = get_session_cookie_count(db, visit_id, base_domain)
 
     # It could be that the HSTS header is set but with value max-age=0, which
@@ -102,16 +101,20 @@ defmodule SiteGenerator.AddStuff do
 
     score =
       cond do
-        scheme == "https" && profile_cookies_first == 0 && profile_cookies_third == 0
+        scheme == "https" && persistent_cookies_first == 0
+        && persistent_cookies_third == 0
         && String.contains?(referrer_policy, ["no-referrer", "never"])
         && hsts !== 0 && third_party_requests == 0 && insecure_requests == 0
           -> "a"
-        scheme == "https" && profile_cookies_third == 0 && third_party_requests == 0
+        scheme == "https" && persistent_cookies_third == 0
+        && third_party_requests == 0
         && insecure_requests == 0
           -> "b"
-        (scheme == "https" && third_party_requests > 0 && insecure_requests == 0) || (third_party_requests == 0)
+        (scheme == "https" && third_party_requests > 0 && insecure_requests == 0)
+        || (third_party_requests == 0)
           -> "c"
-        (scheme == "https" && insecure_requests) || (profile_cookies_third == 0)
+        (scheme == "https" && insecure_requests)
+        || (persistent_cookies_third == 0)
           -> "d"
         true
           -> "e"
@@ -123,8 +126,8 @@ defmodule SiteGenerator.AddStuff do
           SET municipality_name = ?,
               scheme = ?,
               hsts = ?,
-              first_party_profile_cookies = ?,
-              third_party_profile_cookies = ?,
+              first_party_persistent_cookies = ?,
+              third_party_persistent_cookies = ?,
               first_party_session_cookies = ?,
               third_party_session_cookies = ?,
               third_party_requests = ?,
@@ -135,8 +138,8 @@ defmodule SiteGenerator.AddStuff do
     |> bind_values!([municipalities[base_domain],
                      scheme,
                      hsts,
-                     profile_cookies_first,
-                     profile_cookies_third,
+                     persistent_cookies_first,
+                     persistent_cookies_third,
                      session_cookies_first,
                      session_cookies_third,
                      third_party_requests,
@@ -149,12 +152,17 @@ defmodule SiteGenerator.AddStuff do
 
   # Returns tuple with number of first-party cookies and number of
   # third-party cookies.
-  defp get_cookie_count(db, visit_id, base_domain) do
+  defp get_persistent_cookie_count(db, visit_id, base_domain) do
     db
-    |> prepare!("SELECT * FROM profile_cookies WHERE visit_id = ?")
+    |> prepare!("SELECT *
+                 FROM javascript_cookies
+                 WHERE visit_id = ?
+                 AND is_session = 0
+                 AND change = 'added'
+                 GROUP BY host, name")
     |> bind_values!([visit_id])
     |> fetch_all!
-    |> Enum.partition(&(&1[:baseDomain] == base_domain))
+    |> Enum.partition(&(&1[:base_domain] == base_domain))
     |> Tuple.to_list
     |> (&({Enum.count(List.first(&1)), Enum.count(List.last(&1))})).()
   end
@@ -163,14 +171,15 @@ defmodule SiteGenerator.AddStuff do
   # of third-party session cookies.
   defp get_session_cookie_count(db, visit_id, base_domain) do
     db
-    |> prepare!("SELECT DISTINCT domain, name, baseDomain
-                 FROM http_response_cookies
-                 WHERE header_id IN
-                  (SELECT id FROM http_responses WHERE visit_id = ?)
-                 AND expires IS null")
+    |> prepare!("SELECT DISTINCT host, name, base_domain
+                 FROM javascript_cookies
+                 WHERE visit_id = ?
+                 AND is_session = 1
+                 AND change = 'added'
+                 GROUP BY host, name")
     |> bind_values!([visit_id])
     |> fetch_all!
-    |> Enum.partition(&(&1[:baseDomain] == base_domain))
+    |> Enum.partition(&(&1[:base_domain] == base_domain))
     |> Tuple.to_list
     |> (&({Enum.count(List.first(&1)), Enum.count(List.last(&1))})).()
   end
@@ -225,14 +234,53 @@ defmodule SiteGenerator.AddStuff do
     |> Enum.into(%{}, fn([key, value]) -> {String.downcase(key), value} end)
   end
 
-  # Returns string with meta referrer policy, if any, otherwise 0.
-  defp get_referrer_policy(site_url) do
+  defp get_referrer_policy(site_url, headers) do
+    csp_referrer = check_csp_referrer(headers)
+    referrer_header = check_referrer_header(headers)
+    meta_referrer = check_meta_referrer(site_url)
+
+    # Precedence in Firefox 50
+    cond do
+      meta_referrer -> meta_referrer
+      csp_referrer -> csp_referrer
+      referrer_header -> referrer_header
+      true -> nil
+    end
+  end
+
+  defp check_csp_referrer(headers) do
+    if Map.has_key?(headers, "content-security-policy") do
+      case Regex.run(~r/\breferrer ([\w-]+)\b/, headers["content-security-policy"]) do
+           [_, value] -> value
+           nil -> nil
+      end
+    else
+      nil
+    end
+  end
+
+  defp check_referrer_header(headers) do
+    if Map.has_key?(headers, "referrer-policy") do
+      case Regex.run(~r/^([\w-]+)$/i, headers["referrer-policy"]) do
+           [_, value] -> value
+           nil -> nil
+      end
+    else
+      nil
+    end
+  end
+
+  defp check_meta_referrer(site_url) do
     site_url
-    |> HTTPoison.get!([], recv_timeout: 30000)
+    |> HTTPoison.get!([], recv_timeout: 30_000)
     |> Map.get(:body)
     |> Floki.find("meta[name='referrer']")
     |> Floki.attribute("content")
     |> List.to_string
     |> String.downcase
-  end
+    |> case do
+         "" -> nil
+         value -> value
+       end
+    end
 end

@@ -17,14 +17,14 @@ We received funding from [Internetfonden](https://www.internetfonden.se/) / [IIS
 
 ## How to do it yourself
 Get [OpenWPM](https://github.com/citp/OpenWPM) running.  For this
-analysis we used revision `ba0eb6c`:
+analysis we used revision `a063855` (dated 2017-02-07):
 
 ```
 git clone https://github.com/citp/OpenWPM/
 ..
 cd OpenWPM
 ...
-git checkout ba0eb6c
+git checkout a063855
 ```
 
 It comes with an installation script (`install.sh`) tailored for Ubuntu
@@ -73,22 +73,11 @@ wc -l municipalities_final_urls.txt
 
 Before you start: When we first ran the test, more than a few of the sites would
 crash OpenWPM's browser manager with a `StaleElementReferenceException`,
-caused by the code that tries to extract (and use) internal links. In
-rare instances it also happened that external links would be treated as
-internal (a bug that will hopefully be fixed soon). A crude way of
-dealing with the first issue, and a decent way to deal with the second,
-is to change a couple of things in
-`automation/Commands/utils/webdriver_extensions.py`.
+caused by the code that tries to extract (and use) internal links. A way to deal with
+this is to change a couple of things in `automation/Commands/utils/webdriver_extensions.py`.
 
-First, install the [publicsuffixlist]() package (note: you might have to
-use `pip2` depending on your system):
-
-```
-sudo pip install publicsuffixlist
-```
-
-Next, edit `automation/Commands/utils/webdriver_extensions.py` and add
-this somewhere in the top of the file:
+Edit `automation/Commands/utils/webdriver_extensions.py` and add this
+somewhere in the top of the file:
 
 ```
 from publicsuffixlist import PublicSuffixList
@@ -97,22 +86,21 @@ from publicsuffixlist import PublicSuffixList
 Finally, comment out the following lines in function `get_intra_links`:
 
 ```
-domain = urlparse(url).hostname
-links = filter(lambda x: (x.get_attribute("href") and x.get_attribute("href").find(domain) > 0 and x.get_attribute("href").find("http") == 0), webdriver.find_elements_by_tag_name("a"))
+links = filter(lambda x: (x.get_attribute("href") and
+                          du.get_ps_plus_1(urljoin(url, x.get_attribute("href"))) == ps1),
+               webdriver.find_elements_by_tag_name("a"))
 ```
 
 ...and instead add the following (above `return links`):
 
 ```
-psl = PublicSuffixList()
-domain = psl.privatesuffix(urlparse(url).hostname)
 links = []
 for x in webdriver.find_elements_by_tag_name("a"):
     try:
-        if x.get_attribute("href") and psl.privatesuffix(urlparse(x.get_attribute("href")).hostname) == domain and x.get_attribute("href").find("http") == 0:
+        if x.get_attribute("href") and du.get_ps_plus_1(urljoin(url, x.get_attribute("href"))) == ps1:
             links.append(x)
-        except:
-            pass
+    except:
+        pass
 ```
 
 Similarly we need to edit `automation/Commands/browser_commands.py`. In
@@ -151,11 +139,10 @@ generator doesn't handle multiple crawls of a website. E.g. if the sites
 with `visit_id` 283 and 290 failed:
 
 ```
-DELETE FROM http_response_cookies WHERE header_id IN (SELECT id FROM http_responses WHERE visit_id IN (283, 290));
-DELETE FROM http_request_cookies WHERE header_id IN (SELECT id FROM http_requests WHERE visit_id IN (283, 290));
 DELETE FROM http_responses WHERE visit_id IN (283, 290);
 DELETE FROM http_requests WHERE visit_id IN (283, 290);
 DELETE FROM profile_cookies WHERE visit_id IN (283, 290);
+DELETE FROM javascript_cookies WHERE visit_id IN (283, 290);
 DELETE FROM site_visits WHERE visit_id IN (283, 290);
 ```
 
@@ -209,6 +196,8 @@ Or run within interactive elixir by prepending `iex -S`, e.g.,
 ```
 iex -S mix run -e "SiteGenerator.AddStuff.start()"
 ```
+
+Especially `SiteGenerator.AddStuff.start()` can take a *long* time because a few things are currently done very inefficiently.
 
 ## Generating GeoJSON for the map
 [D3.js](https://d3js.org/) is used for a simple visualization of the municipalities of Sweden, color-coded according to score.
