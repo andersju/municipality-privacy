@@ -74,7 +74,7 @@ import SiteGenerator.Helpers
 <div id="results">
 
   <section class="result">
-    <p>Webbplatsen besöktes <%= data[:time_of_visit] %> och fick <a href="metodologi.html#betyg">betyg <strong><%= String.upcase(data[:score]) %></strong></a>.</p>
+    <p>Webbplatsen besöktes <%= data[:time_of_visit] %> och fick <a href="../metodologi.html#betyg">betyg <strong><%= String.upcase(data[:score]) %></strong></a>.</p>
   </section>
 
   <%= if data[:scheme] == "https" do %>
@@ -136,7 +136,7 @@ import SiteGenerator.Helpers
     <% else %>
       <p>Inga förstapartskakor.</p>
     <% end %>
-    <p><em><a href="begrepp.html#forstapartskakor">Vad är förstapartskakor?</a></em></p>
+    <p><em><a href="../begrepp.html#forstapartskakor">Vad är förstapartskakor?</a></em></p>
   </section>
 
   <section class="result <%= if data[:persistent_cookies_third] > 0, do: "warning" %>">
